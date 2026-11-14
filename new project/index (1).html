@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#04060c">
+        <title>HOLOSENSE | Gesture &amp; Voice 3D Viewer</title>
+        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2304060c'/%3E%3Cpath d='M32 10 52 21v22L32 54 12 43V21z' fill='none' stroke='%2300e5ff' stroke-width='3'/%3E%3Cpath d='M32 10v22m0 0 20-11M32 32 12 21m20 11v22' fill='none' stroke='%237c5cff' stroke-width='2'/%3E%3C/svg%3E">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+        <!-- Your original stylesheet loads first; the theme block below overrides it -->
+        <link rel="stylesheet" href="styles.css">
+
+        <!-- Primary Meta Tags -->
+        <meta name="title" content="HOLOSENSE | Gesture & Voice 3D Viewer">
+        <meta name="description" content="Rotate, scale and explore 3D models with your hands and your voice.">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://inspiring-capybara-a9d2d7.netlify.app/">
+        <meta property="og:title" content="HOLOSENSE | Gesture & Voice 3D Viewer">
+        <meta property="og:description" content="Rotate, scale and explore 3D models with your hands and your voice.">
+        <meta property="og:image" content="https://raw.githubusercontent.com/collidingScopes/#3D-model-sensor/main/assets/siteOGImage.jpg">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://inspiring-capybara-a9d2d7.netlify.app/">
+        <meta property="twitter:title" content="HOLOSENSE | Gesture & Voice 3D Viewer">
+        <meta property="twitter:description" content="Rotate, scale and explore 3D models with your hands and your voice.">
+        <meta property="twitter:image" content="https://raw.githubusercontent.com/collidingScopes/#3D-model-sensor/main/assets/siteOGImage.jpg">
+
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="eb59c81c-27cb-4e1d-9e8c-bfbe70c48cd9"></script>
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+                    "three/examples/": "https://unpkg.com/three@0.161.0/examples/jsm/",
+                    "three/loaders/": "https://unpkg.com/three@0.161.0/examples/jsm/loaders/"
+                }
+            }
+        </script>
+
+        <style>
+            /* ---------- HOLOSENSE theme ---------- */
+            :root {
+                --bg-deep: #04060c;
+                --bg-mid: #0a1020;
+                --panel: rgba(10, 18, 36, 0.62);
+                --line: rgba(0, 229, 255, 0.32);
+                --cyan: #00e5ff;
+                --violet: #7c5cff;
+                --text: #d8e6f5;
+                --text-dim: #7f93ad;
+            }
+
+            html, body {
+                background: var(--bg-deep) !important;
+                color: var(--text);
+                font-family: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+            }
+
+            /* Soft glow plus a faint grid behind the 3D scene */
+            #renderDiv {
+                position: relative;
+                background:
+                    radial-gradient(ellipse at 50% 35%, rgba(124, 92, 255, 0.18), transparent 60%),
+                    radial-gradient(ellipse at 50% 110%, rgba(0, 229, 255, 0.12), transparent 55%),
+                    linear-gradient(rgba(0, 229, 255, 0.045) 1px, transparent 1px) 0 0 / 48px 48px,
+                    linear-gradient(90deg, rgba(0, 229, 255, 0.045) 1px, transparent 1px) 0 0 / 48px 48px,
+                    var(--bg-deep);
+            }
+
+            /* Instruction / status text */
+            .text-box,
+            #instruction-text {
+                background: var(--panel) !important;
+                color: var(--text) !important;
+                font-family: "Chakra Petch", "Segoe UI", system-ui, sans-serif !important;
+                letter-spacing: 0.02em;
+                border: 1px solid var(--line) !important;
+                border-radius: 6px !important;
+                -webkit-backdrop-filter: blur(12px);
+                backdrop-filter: blur(12px);
+                box-shadow: 0 0 24px rgba(0, 229, 255, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+            }
+
+            /* Brand mark, top left */
+            .brand {
+                position: fixed;
+                top: 16px;
+                left: 18px;
+                z-index: 5;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                pointer-events: none;
+                user-select: none;
+            }
+            .brand svg { width: 34px; height: 34px; filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6)); }
+            .brand-name {
+                font-weight: 700;
+                font-size: 1.15rem;
+                letter-spacing: 0.22em;
+                color: var(--cyan);
+                text-shadow: 0 0 14px rgba(0, 229, 255, 0.55);
+                line-height: 1.1;
+            }
+            .brand-tag {
+                font-size: 0.72rem;
+                color: var(--text-dim);
+                letter-spacing: 0.06em;
+                margin-top: 2px;
+            }
+
+            /* Buttons and inputs, if your styles.css uses them */
+            button, select, input {
+                font-family: inherit;
+                color: var(--text);
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 6px;
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+            }
+            button:hover, select:hover {
+                border-color: var(--cyan);
+                box-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
+                background: rgba(0, 229, 255, 0.1);
+            }
+            button:focus-visible, select:focus-visible, input:focus-visible {
+                outline: 2px solid var(--cyan);
+                outline-offset: 2px;
+            }
+
+            @media (max-width: 600px) {
+                .brand-tag { display: none; }
+                .brand-name { font-size: 1rem; }
+            }
+        </style>
+    </head>
+    <body style="width: 100%; height: 100%; overflow: hidden; margin: 0;">
+        <div class="brand" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+                <path d="M32 6 55 19v26L32 58 9 45V19z" stroke="#00e5ff" stroke-width="3"/>
+                <path d="M32 6v26m0 0 23-13M32 32 9 19m23 13v26" stroke="#7c5cff" stroke-width="2"/>
+            </svg>
+            <div>
+                <div class="brand-name">HOLOSENSE</div>
+                <div class="brand-tag">Control 3D with your hands and voice</div>
+            </div>
+        </div>
+
+        <div id="renderDiv" style="width: 100%; height: 100%; margin: 0;">
+            <div id="instruction-text" class="text-box"></div>
+            
+        </div>
+        <script type="module" src="main.js"></script>
+
+    </body>
+</html>
